@@ -6,7 +6,7 @@ let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 " }}}
 
-function! surround#doit(mode, count) "{{{
+function! surround#add(mode, count) "{{{
 
   let l:surround = input('Input the surround (2 chars): ')
   if l:surround == '' | let l:surround = '()' | endif
@@ -15,28 +15,63 @@ function! surround#doit(mode, count) "{{{
     \ ? strcharpart(l:surround, 1, 1)
     \ : l:open
 
-  function! s:doit(...) closure "{{{
-    let l:move = get(a:000, 0, '')
-    let l:insert = get(a:000, 1, 'i')
-    let l:append = get(a:000, 2, 'a')
-    execute 'normal! `<' . a:count . l:insert . l:open
-    execute 'normal! `>' . l:move . a:count . l:append . l:close
+  function! s:doit(lhsOp, rhsOp) closure "{{{
+    call cursor(line("'>"), col("'>"))
+    let l:endColOld = col('$')
+    execute 'normal! `<' . a:count . a:lhsOp . l:open
+    call cursor(line("'>"), col("'>"))
+    let l:endColNew = col('$')
+    let l:offset = l:endColNew - l:endColOld
+    call cursor(line("'>"), col("'>") + l:offset)
+    execute 'normal!' a:count . a:rhsOp . l:close
   endfunction "}}}
 
   if a:mode ==# 'n'
     execute "normal! viw\<Esc>"
-    call s:doit(a:count . 'l')
-  elseif a:mode ==# 'v'
-    if line("'<") == line("'>")
-      call s:doit(a:count . 'l')
-    else
-      call s:doit()
-    endif
+  endif
+
+  let l:offset = line("'<") == line("'>") && a:mode !=# 'V'
+  \ ? strdisplaywidth(l:open) * a:count
+  \ : 0
+
+  if a:mode ==# 'v' || a:mode ==# 'n'
+    call s:doit('i', 'a')
   elseif a:mode ==# 'V'
-    call s:doit('', 'O', 'o')
+    call s:doit('O', 'o')
   elseif a:mode ==# "\<C-V>"
     execute 'normal! gv' . a:count . 'A' . l:close
     execute 'normal! gv' . a:count . 'I' . l:open
+  endif
+
+endfunction "}}}
+
+function! surround#delete(mode, count) "{{{
+
+  function! s:doit(lhsOp, rhsOp) closure "{{{
+    call cursor(line("'>"), col("'>"))
+    let l:endColOld = col('$')
+    execute 'normal! `<' . a:count . a:lhsOp
+    call cursor(line("'>"), col("'>"))
+    let l:endColNew = col('$')
+    let l:offset = l:endColNew - l:endColOld
+    call cursor(line("'>"), col("'>") + l:offset)
+    " When cursor is not at EOL.
+    if match(getline('.'), '\%' . col('.') . 'c.$') == -1
+      execute 'normal! l' . a:count . a:rhsOp
+    endif
+  endfunction "}}}
+
+  if a:mode ==# 'n'
+    execute "normal! viw\<Esc>"
+  endif
+
+  if a:mode ==# 'v' || a:mode ==# 'n'
+    call s:doit('X', 'x')
+  " elseif a:mode ==# 'V'
+    " call s:doit(...)
+  " elseif a:mode ==# "\<C-V>"
+    " execute 'normal! gv' . ...
+    " execute 'normal! gv' . ...
   endif
 
 endfunction "}}}
