@@ -2,8 +2,8 @@
 
 ## Usage
 
-- `<leader>[]` : Calls the surround function which requests 2 characters as
-surrounding pair, which defaults to `()`.
+- `<leader>[]` : Requests 2 characters to be added as surrounding pair, which
+defaults to `()`.
 `[count]` pairs are nestedly added.
 When the second character is omitted, it is set to the first one.
 Works in Normal mode and all Visual modes.
