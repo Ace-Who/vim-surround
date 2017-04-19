@@ -17,9 +17,8 @@ function! surround#doit(mode, count) "{{{
 
   function! s:doit(...) closure "{{{
     let l:move = get(a:000, 0, '')
-    let l:insert = get(a:000, 2, 'i')
+    let l:insert = get(a:000, 1, 'i')
     let l:append = get(a:000, 2, 'a')
-    " let l:gv = get(a:000, 3, '')
     execute 'normal! `<' . a:count . l:insert . l:open
     execute 'normal! `>' . l:move . a:count . l:append . l:close
   endfunction "}}}
@@ -34,7 +33,7 @@ function! surround#doit(mode, count) "{{{
       call s:doit()
     endif
   elseif a:mode ==# 'V'
-    call s:doit('j', 'O', 'o')
+    call s:doit('', 'O', 'o')
   elseif a:mode ==# "\<C-V>"
     execute 'normal! gv' . a:count . 'A' . l:close
     execute 'normal! gv' . a:count . 'I' . l:open
