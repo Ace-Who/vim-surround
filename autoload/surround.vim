@@ -15,23 +15,14 @@ function! surround#add(mode, count) "{{{
     \ ? strcharpart(l:surround, 1, 1)
     \ : l:open
 
-  function! s:doit(lhsOp, rhsOp) closure "{{{
-    let l:endLenOld = len(getline("'>"))
-    execute 'normal! `<' . a:count . a:lhsOp . l:open
-    let l:endLenNew = len(getline("'>"))
-    let l:offset = l:endLenNew - l:endLenOld
-    call cursor(line("'>"), col("'>") + l:offset)
-    execute 'normal!' a:count . a:rhsOp . l:close
-  endfunction "}}}
-
   if a:mode ==# 'n'
     execute "normal! viw\<Esc>"
   endif
 
   if a:mode ==# 'v' || a:mode ==# 'n'
-    call s:doit('i', 'a')
+    call s:doit('i' . l:open, 'a' . l:close, a:count)
   elseif a:mode ==# 'V'
-    call s:doit('O', 'o')
+    call s:doit('O' . l:open, 'o' . l:close, a:count)
   elseif a:mode ==# "\<C-V>"
     execute 'normal! gv' . a:count . 'A' . l:close
     execute 'normal! gv' . a:count . 'I' . l:open
@@ -41,29 +32,37 @@ endfunction "}}}
 
 function! surround#delete(mode, count) "{{{
 
-  function! s:doit(lhsOp, rhsOp) closure "{{{
-    let l:endLenOld = len(getline("'>"))
-    execute 'normal! `<' . a:count . a:lhsOp
-    let l:endLenNew = len(getline("'>"))
-    let l:offset = l:endLenNew - l:endLenOld
-    call cursor(line("'>"), col("'>") + l:offset)
-    " When cursor is not at EOL.
-    if match(getline('.'), '\%' . col('.') . 'c.$') == -1
-      execute 'normal! l' . a:count . a:rhsOp
-    endif
-  endfunction "}}}
-
   if a:mode ==# 'n'
     execute "normal! viw\<Esc>"
   endif
 
   if a:mode ==# 'v' || a:mode ==# 'n'
-    call s:doit('X', 'x')
+    call s:doit('X', 'x', a:count, 1)
   " elseif a:mode ==# 'V'
     " call s:doit(...)
   " elseif a:mode ==# "\<C-V>"
     " execute 'normal! gv' . ...
     " execute 'normal! gv' . ...
+  endif
+
+endfunction "}}}
+
+function! s:doit(lhsOp, rhsOp, count, ...) "{{{
+
+  let l:del = get(a:000, 0, 0)
+
+  let l:endLenOld = len(getline("'>"))
+  execute 'normal! `<' . a:count . a:lhsOp
+  let l:endLenNew = len(getline("'>"))
+  let l:offset = l:endLenNew - l:endLenOld
+  call cursor(line("'>"), col("'>") + l:offset)
+  if l:del
+    " When cursor is not at EOL.
+    if match(getline('.'), '\%' . col('.') . 'c.$') == -1
+      execute 'normal! l' . a:count . a:rhsOp
+    endif
+  else
+    execute 'normal!' a:count . a:rhsOp
   endif
 
 endfunction "}}}
