@@ -16,12 +16,10 @@ function! surround#add(mode, count) "{{{
     \ : l:open
 
   function! s:doit(lhsOp, rhsOp) closure "{{{
-    call cursor(line("'>"), col("'>"))
-    let l:endColOld = col('$')
+    let l:endLenOld = len(getline("'>"))
     execute 'normal! `<' . a:count . a:lhsOp . l:open
-    call cursor(line("'>"), col("'>"))
-    let l:endColNew = col('$')
-    let l:offset = l:endColNew - l:endColOld
+    let l:endLenNew = len(getline("'>"))
+    let l:offset = l:endLenNew - l:endLenOld
     call cursor(line("'>"), col("'>") + l:offset)
     execute 'normal!' a:count . a:rhsOp . l:close
   endfunction "}}}
@@ -48,12 +46,10 @@ endfunction "}}}
 function! surround#delete(mode, count) "{{{
 
   function! s:doit(lhsOp, rhsOp) closure "{{{
-    call cursor(line("'>"), col("'>"))
-    let l:endColOld = col('$')
+    let l:endLenOld = len(getline("'>"))
     execute 'normal! `<' . a:count . a:lhsOp
-    call cursor(line("'>"), col("'>"))
-    let l:endColNew = col('$')
-    let l:offset = l:endColNew - l:endColOld
+    let l:endLenNew = len(getline("'>"))
+    let l:offset = l:endLenNew - l:endLenOld
     call cursor(line("'>"), col("'>") + l:offset)
     " When cursor is not at EOL.
     if match(getline('.'), '\%' . col('.') . 'c.$') == -1
