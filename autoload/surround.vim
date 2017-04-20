@@ -28,10 +28,6 @@ function! surround#add(mode, count) "{{{
     execute "normal! viw\<Esc>"
   endif
 
-  let l:offset = line("'<") == line("'>") && a:mode !=# 'V'
-  \ ? strdisplaywidth(l:open) * a:count
-  \ : 0
-
   if a:mode ==# 'v' || a:mode ==# 'n'
     call s:doit('i', 'a')
   elseif a:mode ==# 'V'
