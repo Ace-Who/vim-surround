@@ -54,8 +54,9 @@ function! s:doit(lhsOp, rhsOp, count, ...) "{{{
 
   let l:del = get(a:000, 0, 0)
   if l:del
-    " When cursor is not at EOL.
-    if match(getline('.'), '\%' . col('.') . 'c.$') == -1
+    " When cursor is not at EOL. Two methods to test this.
+    " if match(getline('.'), '\%' . col('.') . 'c.$') == -1
+    if strchars(getline('.')[col('.') - 1:]) > 1
       execute 'normal! l' . a:count . a:rhsOp
     endif
   else
