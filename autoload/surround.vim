@@ -38,24 +38,21 @@ function! surround#delete(mode, count) "{{{
 
   if a:mode ==# 'v' || a:mode ==# 'n'
     call s:doit('X', 'x', a:count, 1)
-  " elseif a:mode ==# 'V'
-    " call s:doit(...)
-  " elseif a:mode ==# "\<C-V>"
-    " execute 'normal! gv' . ...
-    " execute 'normal! gv' . ...
+  elseif a:mode ==# 'V'
+    execute "'<-" . a:count . ",'<-1d _"
+    execute "'>+1d _" a:count
   endif
 
 endfunction "}}}
 
 function! s:doit(lhsOp, rhsOp, count, ...) "{{{
-
-  let l:del = get(a:000, 0, 0)
-
   let l:endLenOld = len(getline("'>"))
   execute 'normal! `<' . a:count . a:lhsOp
   let l:endLenNew = len(getline("'>"))
   let l:offset = l:endLenNew - l:endLenOld
   call cursor(line("'>"), col("'>") + l:offset)
+
+  let l:del = get(a:000, 0, 0)
   if l:del
     " When cursor is not at EOL.
     if match(getline('.'), '\%' . col('.') . 'c.$') == -1
@@ -64,7 +61,6 @@ function! s:doit(lhsOp, rhsOp, count, ...) "{{{
   else
     execute 'normal!' a:count . a:rhsOp
   endif
-
 endfunction "}}}
 
 " Restore 'cpoptions' setting {{{
