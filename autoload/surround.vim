@@ -41,6 +41,8 @@ function! surround#delete(mode, count) "{{{
   elseif a:mode ==# 'V'
     execute "'<-" . a:count . ",'<-1d _"
     execute "'>+1d _" a:count
+    " Put cursor back.
+    execute "normal! gv\<Esc>"
   endif
 
 endfunction "}}}
